@@ -9,5 +9,6 @@ namespace BusinessLayer.Interfaces
     {
         public bool RegisterUser(UserModel userModel);
         public IEnumerable<UserModel> GetAllUsers();
+        public bool LoggingUser(UserModel user);
     }
 }

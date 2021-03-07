@@ -15,7 +15,10 @@ namespace BusinessLayer.Services
         {
             this.userRegistrationsRL = userRegistrationsRL;
         }
-
+        public bool LoggingUser(UserModel user)
+        {
+            return userRegistrationsRL.LoggingUser(user);
+        }
         public IEnumerable<UserModel> GetAllUsers()
         {
             return userRegistrationsRL.GetAllUsers();

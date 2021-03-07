@@ -13,5 +13,6 @@ namespace RepositoryLayer.Interfaces
         void Update(TEntity dbEntity, TEntity entity);
         void Delete(TEntity entity);
         IEnumerable<UserModel> GetAllUsers();
+        bool LoggingUser(UserModel user);
     }
 }

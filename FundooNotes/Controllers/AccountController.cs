@@ -27,7 +27,7 @@ namespace FundooNotes.Controllers
         {
             if (user == null)
             {
-                return BadRequest("Employee is null.");
+                return BadRequest("user is null.");
             }
             try
             {
@@ -46,6 +46,28 @@ namespace FundooNotes.Controllers
             {
                 return BadRequest(new { success = false, exception.Message });
             }                     
+        }
+
+        [HttpPost("Login")]
+        public IActionResult LoggingUser(UserModel user)
+        {
+            if (user == null)
+            {
+                return BadRequest("user is null.");
+            }
+            try
+            {
+                bool result = userRegistrationsBL.LoggingUser(user);
+                if (result)
+                {
+                    return Ok(new { success = true, Message = "User Login Successful" });
+                }
+                    return BadRequest(new { success = false, Message = "User Login Unsuccessful" });
+            }
+            catch (Exception exception)
+            {
+                return BadRequest(new { success = false, exception.Message });
+            }
         }
 
         [HttpGet]
