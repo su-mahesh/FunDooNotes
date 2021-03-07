@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using CommonLayer.Model;
 
 namespace RepositoryLayer.Interfaces
 {
-    interface IUserRegistrationRL<TEntity>
+    public interface IUserRegistrationRL<TEntity>
     {
         IEnumerable<TEntity> GetAll();
         TEntity Get(long id);
-        void Add(TEntity entity);
+        bool Register(TEntity entity);
         void Update(TEntity dbEntity, TEntity entity);
         void Delete(TEntity entity);
+        IEnumerable<UserModel> GetAllUsers();
     }
 }

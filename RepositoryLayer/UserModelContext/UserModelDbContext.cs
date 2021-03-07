@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using CommonLayer.ResponseModel;
+using CommonLayer.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace RepositoryLayer.UserModelContext

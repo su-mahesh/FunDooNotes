@@ -18,7 +18,7 @@ namespace RepositoryLayer.Migrations
                 .HasAnnotation("ProductVersion", "5.0.3")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("CommonLayer.ResponseModel.UserModel", b =>
+            modelBuilder.Entity("CommonLayer.Model.UserModel", b =>
                 {
                     b.Property<long>("UserID")
                         .ValueGeneratedOnAdd()

@@ -9,8 +9,8 @@ using RepositoryLayer.UserModelContext;
 namespace RepositoryLayer.Migrations
 {
     [DbContext(typeof(UserModelDbContext))]
-    [Migration("20210307082718_UserModelContext_Unique")]
-    partial class UserModelContext_Unique
+    [Migration("20210307092553_UserModelContext")]
+    partial class UserModelContext
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -20,7 +20,7 @@ namespace RepositoryLayer.Migrations
                 .HasAnnotation("ProductVersion", "5.0.3")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("CommonLayer.ResponseModel.UserModel", b =>
+            modelBuilder.Entity("CommonLayer.Model.UserModel", b =>
                 {
                     b.Property<long>("UserID")
                         .ValueGeneratedOnAdd()
