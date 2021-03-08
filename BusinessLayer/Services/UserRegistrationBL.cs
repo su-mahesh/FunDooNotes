@@ -15,13 +15,9 @@ namespace BusinessLayer.Services
         {
             this.userRegistrationsRL = userRegistrationsRL;
         }
-        public bool LoggingUser(UserModel user)
+        public bool AuthenticateUser(UserModel user)
         {
-            return userRegistrationsRL.LoggingUser(user);
-        }
-        public IEnumerable<UserModel> GetAllUsers()
-        {
-            return userRegistrationsRL.GetAllUsers();
+            return userRegistrationsRL.AuthenticateUser(user);
         }
 
         public bool RegisterUser(UserModel userModel)

@@ -12,7 +12,6 @@ namespace RepositoryLayer.Interfaces
         bool Register(TEntity entity);
         void Update(TEntity dbEntity, TEntity entity);
         void Delete(TEntity entity);
-        IEnumerable<UserModel> GetAllUsers();
-        bool LoggingUser(UserModel user);
+        bool AuthenticateUser(UserModel user);
     }
 }

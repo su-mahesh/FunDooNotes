@@ -8,7 +8,6 @@ namespace BusinessLayer.Interfaces
     public interface IUserRegistrationBL
     {
         public bool RegisterUser(UserModel userModel);
-        public IEnumerable<UserModel> GetAllUsers();
-        public bool LoggingUser(UserModel user);
+        public bool AuthenticateUser(UserModel user);
     }
 }

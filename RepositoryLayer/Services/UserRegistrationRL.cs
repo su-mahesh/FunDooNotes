@@ -19,7 +19,7 @@ namespace RepositoryLayer.Services
         {
             this.userModelDbContext = userModelDbContext;
         }
-        public bool LoggingUser(UserModel user)
+        public bool AuthenticateUser(UserModel user)
         {            
             if (IsEmailPresent(user.Email))
             {
@@ -71,11 +71,6 @@ namespace RepositoryLayer.Services
         {
             userModelDbContext.Users.Add(entity);
             userModelDbContext.SaveChanges();
-        }
-
-        public IEnumerable<UserModel> GetAllUsers()
-        {
-            return userModelDbContext.Users.ToList();
         }
     }
 }

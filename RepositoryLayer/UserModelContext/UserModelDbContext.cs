@@ -19,6 +19,8 @@ namespace RepositoryLayer.UserModelContext
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UserModel>().HasIndex(u => u.Email).IsUnique();
+            modelBuilder.Entity<UserModel>().Property(t => t.FirstName).IsRequired();
+            modelBuilder.Entity<UserModel>().Property(t => t.LastName).IsRequired();
         }
 
         public DbSet<UserModel> Users { get; set; }

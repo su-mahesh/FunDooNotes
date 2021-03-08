@@ -2,15 +2,17 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RepositoryLayer.UserModelContext;
 
 namespace RepositoryLayer.Migrations
 {
     [DbContext(typeof(UserModelDbContext))]
-    partial class UserModelDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210308112835_Redefined_FirstName_LastNameColumn")]
+    partial class Redefined_FirstName_LastNameColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
