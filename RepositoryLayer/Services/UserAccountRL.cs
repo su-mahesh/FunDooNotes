@@ -10,21 +10,24 @@ using RepositoryLayer.UserModelContext;
 
 namespace RepositoryLayer.Services
 {
-    public class UserRegistrationRL : IUserRegistrationRL<UserModel>
+    public class UserAccountRL : IUserAccountRL<UserModel>
     {
         readonly UserModelDbContext userModelDbContext;
         PasswordEncryption passwordEncryption = new PasswordEncryption();
 
-        public UserRegistrationRL(UserModelDbContext userModelDbContext)
+        public UserAccountRL(UserModelDbContext userModelDbContext)
         {
             this.userModelDbContext = userModelDbContext;
         }
-        public bool AuthenticateUser(UserModel user)
-        {            
-            if (IsEmailPresent(user.Email))
+        public UserModel AuthenticateUser(UserModel user)
+        {
+            string Password = passwordEncryption.EncryptPassword(user.Password);
+
+            if (IsEmailPresent(user.Email) && userModelDbContext.Users.FirstOrDefault(u => u.Email == user.Email).Password == Password)
             {
-                string Password = passwordEncryption.EncryptPassword(user.Password);
-                return userModelDbContext.Users.FirstOrDefault(u => u.Email == user.Email).Password == Password;
+                UserModel u = userModelDbContext.Users.FirstOrDefault(u => u.Email == user.Email);
+                u.Password = null;
+                return u;
             }
             else
             {
@@ -36,14 +39,20 @@ namespace RepositoryLayer.Services
         {
             return userModelDbContext.Users.Any(u => u.Email == Email);
         }
-        public bool Register(UserModel user)
+        public UserModel Register(UserModel user)
         {
             if (!IsEmailPresent(user.Email))
             {
                 user.Password = new PasswordEncryption().EncryptPassword(user.Password);
                 userModelDbContext.Users.Add(user);
                 userModelDbContext.SaveChanges();
-                return true;
+                return userModelDbContext.Users.Where(u => u.Email.Equals(user.Email)).Select(u => new UserModel
+                {
+                    UserID = u.UserID,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    Email = u.Email
+                }).ToList().First();
             }
             else
             {
@@ -71,6 +80,11 @@ namespace RepositoryLayer.Services
         {
             userModelDbContext.Users.Add(entity);
             userModelDbContext.SaveChanges();
+        }
+
+        public UserModel GetAuthorizedUser(string email)
+        {
+            return userModelDbContext.Users.FirstOrDefault(u => u.Email == email);
         }
     }
 }

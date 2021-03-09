@@ -7,7 +7,7 @@ namespace CommonLayer.UserAccountException
     public class UserAccountException : Exception
     {
         public enum ExceptionType { 
-        EMAIL_ALREADY_EXIST,
+            EMAIL_ALREADY_EXIST,
             EMAIL_DONT_EXIST
         }
         public ExceptionType exceptionType;

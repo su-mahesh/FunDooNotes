@@ -11,8 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json.Linq;
 
 namespace FundooNotes.Controllers
 {
@@ -20,20 +19,20 @@ namespace FundooNotes.Controllers
     [Route("[controller]")]
     public class AccountController : ControllerBase
     {
-        IUserRegistrationBL userRegistrationsBL;
+        IUserAccountBL userAccountBL;
         UserAuthenticationJWT userAuthentication;
         private IConfiguration config;
 
         private readonly ILogger<AccountController> _logger;
 
-        public AccountController(IUserRegistrationBL userRegistrationsBL, ILogger<AccountController> logger, IConfiguration config)
+        public AccountController(IUserAccountBL userRegistrationsBL, ILogger<AccountController> logger, IConfiguration config)
         {
-            this.userRegistrationsBL = userRegistrationsBL;
+            this.userAccountBL = userRegistrationsBL;
             _logger = logger;
             this.config = config;
             userAuthentication = new UserAuthenticationJWT(this.config);
         }
-
+       
         [HttpPost("RegisterUser")]
         public IActionResult RegisterUser(UserModel user)
         {
@@ -43,10 +42,18 @@ namespace FundooNotes.Controllers
             }
             try
             {
-                bool result = userRegistrationsBL.RegisterUser(user);
-                if (result)
+                UserModel result = userAccountBL.RegisterUser(user);               
+                if (result != null)
                 {
-                    return Ok(new { success = true, Message = "User Registration Successful" });
+                    var NewUser = new
+                    {
+                        result.UserID,
+                        result.FirstName,
+                        result.LastName,
+                        result.Email
+                    };
+
+                    return Ok(new { success = true, Message = "User Registration Successful", user = NewUser });
                 }
                 else
                 {
@@ -68,11 +75,19 @@ namespace FundooNotes.Controllers
             }
             try
             {
-                bool result = userRegistrationsBL.AuthenticateUser(user);
-                if (result)
+                UserModel result = userAccountBL.AuthenticateUser(user);
+                if (result != null)
                 {
-                    var tokenString = userAuthentication.GenerateJSONWebToken(user);
-                    return Ok(new { success = true, Message = "User Login Successful", token = tokenString });
+                    var tokenString = userAuthentication.GenerateJSONWebToken(result);
+                    var LoginUser = new
+                    {
+                        result.UserID,
+                        result.FirstName,
+                        result.LastName,
+                        result.Email
+                    };
+                    return Ok(new { success = true, Message = "User Login Successful", user = LoginUser,
+                        token = tokenString });
                 }
                     return BadRequest(new { success = false, Message = "User Login Unsuccessful" });
             }
@@ -81,37 +96,34 @@ namespace FundooNotes.Controllers
                 return BadRequest(new { success = false, exception.Message });
             }
         }
+
+        [Authorize]
         [HttpGet]
-   //     [Authorize]
-        public IActionResult GetActiveUser()
-        {
-            var currentUser = HttpContext.User;
-
-            var accessToken = Request.Headers[HeaderNames.Authorization];
-            string[] tokenPart = accessToken.ToString().Split(".");
-            if (currentUser.HasClaim(c => c.Type == "email"))
+        public IActionResult GetAuthorizedUser()
+        {          
+            try
             {
-                DateTime date = DateTime.Parse(currentUser.Claims.FirstOrDefault(c => c.Type == "DateOfJoing").Value);
-
-                
-                return Ok(new { success = true, Message = "User is active", user = currentUser.Claims.FirstOrDefault(c => c.Type == "email").Value });
+                var identity = User.Identity as ClaimsIdentity;
+                if (identity != null)
+                {
+                    IEnumerable<Claim> claims = identity.Claims;
+                    var Email = claims.Where(p => p.Type == "Email").FirstOrDefault()?.Value;
+                    UserModel result = userAccountBL.GetAuthorizedUser(Email);
+                    var LoginUser = new
+                    {
+                        result.UserID,
+                        result.FirstName,
+                        result.LastName,
+                        result.Email
+                    };
+                    return Ok(new { success = true, Message = "User is active", user = LoginUser });
+                }
+                return BadRequest(new { success = false, Message = "no user is active please login" });
             }
-
-            return null;
-        }
-       /* private string GenerateJSONWebToken(UserModel userInfo)
-        {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-            IEnumerable<Claim> Claims = new Claim[] { new Claim("email", userInfo.Email) };
-
-            var token = new JwtSecurityToken(config["Jwt:Issuer"], userInfo.Email,
-              claims: Claims,
-              expires: DateTime.Now.AddMinutes(1),
-              signingCredentials: credentials);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }*/
+            catch (Exception exception)
+            {
+                return BadRequest(new { success = false, exception.Message });
+            }
+        }              
     }
 }

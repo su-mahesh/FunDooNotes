@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace RepositoryLayer.Services
@@ -25,7 +22,6 @@ namespace RepositoryLayer.Services
             iterationCount: 10000,
             numBytesRequested: 256 / 8));
             return hashed;
-        }
-        
+        }       
     }
 }
