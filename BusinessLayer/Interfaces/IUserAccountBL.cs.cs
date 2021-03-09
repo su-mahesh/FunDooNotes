@@ -10,5 +10,6 @@ namespace BusinessLayer.Interfaces
         public UserModel RegisterUser(UserModel userModel);
         public UserModel AuthenticateUser(UserModel user);
         UserModel GetAuthorizedUser(string email);
+        bool ResetPassword(string userID, ResetPasswordModel resetPasswordModel);
     }
 }

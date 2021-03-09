@@ -29,7 +29,7 @@ namespace FundooNotes.JWTAuthentication
 
             var token = new JwtSecurityToken(config["Jwt:Issuer"], config["Jwt:Audience"],
               claims: Claims,
-              expires: DateTime.Now.AddSeconds(60),
+              expires: DateTime.Now.AddSeconds(300),
               signingCredentials: credentials);
             return new JwtSecurityTokenHandler().WriteToken(token);
         }

@@ -25,7 +25,9 @@ namespace BusinessLayer.Services
             ENTERED_WITHOUT_AT_LEAST_ONE_SPEACIAL_CHAR,
             ENTERED_WITHOUT_AT_LEAST_ONE_UPPER_CHAR,
             ENTERED_WITHOUT_AT_LEAST_ONE_LOWER_CHAR,
-            ENTERED_FIRST_CHAR_DOT
+            ENTERED_FIRST_CHAR_DOT,
+            CONFIRM_PASSWORD_DO_NO_MATCH,
+            WRONG_CURRENT_PASSWORD
         }
         public ExceptionType exceptionType;
         public UserDetailException(ExceptionType exceptionType, string message) : base(message)

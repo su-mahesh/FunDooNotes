@@ -14,5 +14,6 @@ namespace RepositoryLayer.Interfaces
         void Delete(TEntity entity);
         UserModel AuthenticateUser(UserModel user);
         UserModel GetAuthorizedUser(string email);
+        bool ResetPassword(string Email, string newPassword);
     }
 }

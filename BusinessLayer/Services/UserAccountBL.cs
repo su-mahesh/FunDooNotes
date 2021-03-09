@@ -76,5 +76,29 @@ namespace BusinessLayer.Services
                 throw;
             }
         }
+
+        public bool ResetPassword(string Email, ResetPasswordModel resetPasswordModel)
+        {
+            try
+            {
+                if (resetPasswordModel.NewPassword.Equals(resetPasswordModel.ConfirmNewPassword))
+                {
+                    var user = userAccountRL.AuthenticateUser(new UserModel{ Email = Email, Password = resetPasswordModel.CurrentPassword});
+                    if (user != null)
+                    {
+                        return userAccountRL.ResetPassword(Email, resetPasswordModel.NewPassword);
+                    }
+                    throw new UserDetailException(UserDetailException.ExceptionType.WRONG_CURRENT_PASSWORD, "current password is wrong");
+                }
+                else
+                {
+                    throw new UserDetailException(UserDetailException.ExceptionType.CONFIRM_PASSWORD_DO_NO_MATCH, "New and comfirm password do not match");
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

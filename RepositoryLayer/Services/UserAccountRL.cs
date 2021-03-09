@@ -7,13 +7,12 @@ using CommonLayer.UserAccountException;
 using RepositoryLayer.Interfaces;
 using RepositoryLayer.UserModelContext;
 
-
 namespace RepositoryLayer.Services
 {
     public class UserAccountRL : IUserAccountRL<UserModel>
     {
         readonly UserModelDbContext userModelDbContext;
-        PasswordEncryption passwordEncryption = new PasswordEncryption();
+        readonly PasswordEncryption passwordEncryption = new PasswordEncryption();
 
         public UserAccountRL(UserModelDbContext userModelDbContext)
         {
@@ -58,7 +57,6 @@ namespace RepositoryLayer.Services
             {
                 throw new UserAccountException(UserAccountException.ExceptionType.EMAIL_ALREADY_EXIST, "email id already registered");
             }
-
         }
 
         public void Delete(UserModel entity)
@@ -85,6 +83,27 @@ namespace RepositoryLayer.Services
         public UserModel GetAuthorizedUser(string email)
         {
             return userModelDbContext.Users.FirstOrDefault(u => u.Email == email);
+        }
+
+        public bool ResetPassword(string Email, string newPassword)
+        {
+            try
+            {
+                var NewPassword = passwordEncryption.EncryptPassword(newPassword);
+                var user = userModelDbContext.Users.FirstOrDefault(u => u.Email.Equals(Email));                
+                if (user != null)
+                {
+                    user.Password = NewPassword;
+                    userModelDbContext.Entry(user).Property(x => x.Password).IsModified = true;
+                    userModelDbContext.SaveChanges();
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return false;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -124,6 +125,30 @@ namespace FundooNotes.Controllers
             {
                 return BadRequest(new { success = false, exception.Message });
             }
-        }              
+        }
+        [Authorize]
+        [HttpGet("ResetPassword")]
+        public IActionResult ResetPassword(ResetPasswordModel resetPasswordModel)
+        {
+            try
+            {
+                var identity = User.Identity as ClaimsIdentity;
+                if (identity != null)
+                {
+                    IEnumerable<Claim> claims = identity.Claims;
+                    var Email = claims.Where(p => p.Type == "Email").FirstOrDefault()?.Value;
+                    bool result = userAccountBL.ResetPassword(Email, resetPasswordModel);
+                    if (result)
+                    {
+                        return Ok(new { success = true, Message = "password changed" });
+                    }
+                }
+                return BadRequest(new { success = false, Message = "password did not changed" });
+            }
+            catch (Exception exception)
+            {
+                return BadRequest(new { success = false, exception.Message });
+            }
+        }
     }
 }
