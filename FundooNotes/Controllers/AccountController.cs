@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.IO;
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using BusinessLayer.Interfaces;
+using CommonLayer.EmailMessageModel;
 using CommonLayer.Model;
+using CommonLayer.RequestModel;
 using FundooNotes.JWTAuthentication;
+using FundooNotes.MSMQ;
+using FundooNotes.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 
 namespace FundooNotes.Controllers
 {
@@ -21,17 +21,21 @@ namespace FundooNotes.Controllers
     public class AccountController : ControllerBase
     {
         IUserAccountBL userAccountBL;
+        EmailService emailSevice;
         UserAuthenticationJWT userAuthentication;
+        MSMQService msmq;
         private IConfiguration config;
 
         private readonly ILogger<AccountController> _logger;
 
         public AccountController(IUserAccountBL userRegistrationsBL, ILogger<AccountController> logger, IConfiguration config)
         {
+            emailSevice = new EmailService(config);
             this.userAccountBL = userRegistrationsBL;
             _logger = logger;
             this.config = config;
             userAuthentication = new UserAuthenticationJWT(this.config);
+            msmq = new MSMQService(config);
         }
        
         [HttpPost("RegisterUser")]
@@ -79,7 +83,7 @@ namespace FundooNotes.Controllers
                 UserModel result = userAccountBL.AuthenticateUser(user);
                 if (result != null)
                 {
-                    var tokenString = userAuthentication.GenerateJSONWebToken(result);
+                    var tokenString = userAuthentication.GenerateSessionJWT(result);
                     var LoginUser = new
                     {
                         result.UserID,
@@ -127,7 +131,7 @@ namespace FundooNotes.Controllers
             }
         }
         [Authorize]
-        [HttpGet("ResetPassword")]
+        [HttpPost("ResetPassword")]
         public IActionResult ResetPassword(ResetPasswordModel resetPasswordModel)
         {
             try
@@ -137,13 +141,42 @@ namespace FundooNotes.Controllers
                 {
                     IEnumerable<Claim> claims = identity.Claims;
                     var Email = claims.Where(p => p.Type == "Email").FirstOrDefault()?.Value;
-                    bool result = userAccountBL.ResetPassword(Email, resetPasswordModel);
+                    resetPasswordModel.Email = Email;
+                    bool result = userAccountBL.ResetPassword(resetPasswordModel);
                     if (result)
                     {
-                        return Ok(new { success = true, Message = "password changed" });
+                        return Ok(new { success = true, Message = "password changed successfully" });
                     }
                 }
-                return BadRequest(new { success = false, Message = "password did not changed" });
+                return BadRequest(new { success = false, Message = "password change unsuccessfull" });
+            }
+            catch (Exception exception)
+            {
+                return BadRequest(new { success = false, exception.Message });
+            }
+        }
+        [HttpGet("ForgetPassword")]
+        public IActionResult ResetForgottenPassword(ForgetPasswordModel forgetPasswordModel)
+        {
+            try
+            {
+                UserModel result = userAccountBL.GetAuthorizedUser(forgetPasswordModel.Email);
+               
+                if (result != null)
+                {
+                    var JwtToken = userAuthentication.GeneratePasswordResetJWT(result);
+                    ResetLinkEmailModel resetLink = new ResetLinkEmailModel
+                    {
+                        Email = result.Email,
+                        JwtToken = JwtToken
+                    };
+                    msmq.SendPasswordResetMessage(resetLink);
+                    return Ok(new { success = true, Message = "password reset link has been sent to your email id", email = forgetPasswordModel.Email });
+                }
+                else
+                {
+                    return BadRequest(new { success = false, Message = "email id don't exist" });
+                }                            
             }
             catch (Exception exception)
             {

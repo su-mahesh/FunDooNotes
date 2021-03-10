@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using BusinessLayer.Interfaces;
 using CommonLayer.Model;
+using CommonLayer.RequestModel;
 using RepositoryLayer.Interfaces;
 
 namespace BusinessLayer.Services
@@ -10,6 +11,7 @@ namespace BusinessLayer.Services
     public class UserAccountBL : IUserAccountBL
     {
         IUserAccountRL<UserModel> userAccountRL;
+
         UserDetailValidation userDetailValidation;
         public UserAccountBL(IUserAccountRL<UserModel> userRegistrationsRL)
         {
@@ -77,18 +79,14 @@ namespace BusinessLayer.Services
             }
         }
 
-        public bool ResetPassword(string Email, ResetPasswordModel resetPasswordModel)
+        public bool ResetPassword(ResetPasswordModel user)
         {
             try
             {
-                if (resetPasswordModel.NewPassword.Equals(resetPasswordModel.ConfirmNewPassword))
+                if (user.NewPassword.Equals(user.ConfirmNewPassword) &&
+                    userDetailValidation.ValidatePassword(user.NewPassword))
                 {
-                    var user = userAccountRL.AuthenticateUser(new UserModel{ Email = Email, Password = resetPasswordModel.CurrentPassword});
-                    if (user != null)
-                    {
-                        return userAccountRL.ResetPassword(Email, resetPasswordModel.NewPassword);
-                    }
-                    throw new UserDetailException(UserDetailException.ExceptionType.WRONG_CURRENT_PASSWORD, "current password is wrong");
+                    return userAccountRL.ResetPassword(user);
                 }
                 else
                 {

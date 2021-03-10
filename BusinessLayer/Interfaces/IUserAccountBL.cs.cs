@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using CommonLayer.Model;
+using CommonLayer.RequestModel;
 
 namespace BusinessLayer.Interfaces
 {
@@ -10,6 +11,6 @@ namespace BusinessLayer.Interfaces
         public UserModel RegisterUser(UserModel userModel);
         public UserModel AuthenticateUser(UserModel user);
         UserModel GetAuthorizedUser(string email);
-        bool ResetPassword(string userID, ResetPasswordModel resetPasswordModel);
+        bool ResetPassword(ResetPasswordModel resetPasswordModel);
     }
 }

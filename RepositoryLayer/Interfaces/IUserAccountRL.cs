@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using CommonLayer.Model;
+using CommonLayer.RequestModel;
 
 namespace RepositoryLayer.Interfaces
 {
@@ -14,6 +15,6 @@ namespace RepositoryLayer.Interfaces
         void Delete(TEntity entity);
         UserModel AuthenticateUser(UserModel user);
         UserModel GetAuthorizedUser(string email);
-        bool ResetPassword(string Email, string newPassword);
+        bool ResetPassword(ResetPasswordModel resetPasswordModel);
     }
 }

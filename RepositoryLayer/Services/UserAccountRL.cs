@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CommonLayer.Model;
+using CommonLayer.RequestModel;
 using CommonLayer.UserAccountException;
 using RepositoryLayer.Interfaces;
 using RepositoryLayer.UserModelContext;
@@ -22,11 +23,16 @@ namespace RepositoryLayer.Services
         {
             string Password = passwordEncryption.EncryptPassword(user.Password);
 
-            if (IsEmailPresent(user.Email) && userModelDbContext.Users.FirstOrDefault(u => u.Email == user.Email).Password == Password)
+            if (IsEmailPresent(user.Email))
             {
-                UserModel u = userModelDbContext.Users.FirstOrDefault(u => u.Email == user.Email);
-                u.Password = null;
-                return u;
+                if (userModelDbContext.Users.FirstOrDefault(u => u.Email == user.Email).Password == Password)
+                {
+                    UserModel u = userModelDbContext.Users.FirstOrDefault(u => u.Email == user.Email);
+                    u.Password = null;
+                    return u;
+                }
+                else
+                    throw new UserAccountException(UserAccountException.ExceptionType.WRONG_PASSWORD, "password is wrong");
             }
             else
             {
@@ -85,12 +91,12 @@ namespace RepositoryLayer.Services
             return userModelDbContext.Users.FirstOrDefault(u => u.Email == email);
         }
 
-        public bool ResetPassword(string Email, string newPassword)
+        public bool ResetPassword(ResetPasswordModel resetPasswordModel)
         {
             try
             {
-                var NewPassword = passwordEncryption.EncryptPassword(newPassword);
-                var user = userModelDbContext.Users.FirstOrDefault(u => u.Email.Equals(Email));                
+                var NewPassword = passwordEncryption.EncryptPassword(resetPasswordModel.NewPassword);
+                var user = userModelDbContext.Users.FirstOrDefault(u => u.Email.Equals(resetPasswordModel.Email));                
                 if (user != null)
                 {
                     user.Password = NewPassword;

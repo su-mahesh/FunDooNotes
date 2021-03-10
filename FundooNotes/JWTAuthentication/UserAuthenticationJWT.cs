@@ -12,26 +12,35 @@ namespace FundooNotes.JWTAuthentication
     public class UserAuthenticationJWT
     {
         private IConfiguration config;
-
         public UserAuthenticationJWT(IConfiguration config)
         {
             this.config = config;
         }
 
-        public string GenerateJSONWebToken(UserModel userInfo)
+        public string GenerateSessionJWT(UserModel userInfo)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            
-            IEnumerable<Claim> Claims = new Claim[] { new Claim("FirstName", userInfo.FirstName), 
-                new Claim("LastName", userInfo.LastName),
+            DateTime ExpireTime = DateTime.Now.AddMinutes(5);
+            return GenerateJSONWebToken(userInfo, ExpireTime);
+        }
+        public string GeneratePasswordResetJWT(UserModel userInfo)
+        {
+            DateTime ExpireTime = DateTime.Now.AddMinutes(10);
+            return GenerateJSONWebToken(userInfo, ExpireTime);
+        }
+        public string GenerateJSONWebToken(UserModel userInfo, DateTime ExpireTime)
+        {
+            SymmetricSecurityKey securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]));
+            SigningCredentials credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            IEnumerable<Claim> Claims = new Claim[] {
+                new Claim("UserID", userInfo.UserID.ToString()),
                 new Claim("Email", userInfo.Email) };
 
             var token = new JwtSecurityToken(config["Jwt:Issuer"], config["Jwt:Audience"],
               claims: Claims,
-              expires: DateTime.Now.AddSeconds(300),
+              expires: ExpireTime,
               signingCredentials: credentials);
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-    }
+
+        }
 }

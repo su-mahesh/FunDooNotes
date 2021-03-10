@@ -10,7 +10,7 @@ namespace BusinessLayer.Services
         public static Regex LastNameRegex = new Regex(@"^[A-Z][a-zA-Z]{2,}$");
         public static Regex EmailAddressRegex = new Regex(@"^[a-zA-Z0-9]+([._+-][a-zA-Z0-9]+)*@[a-zA-Z0-9]+.[a-zA-Z]{2,4}([.][a-zA-Z]{2,})?$");
         public static Regex PasswordRegex = new Regex(@"^(?=.{8,20}$)(?=.*[\d])(?=.*[A-Z])[\w]*[\W][\w]*$");
-        public static char[] SpecialChars = ".&!+*-?^$()[]{}|\\".ToCharArray();
+        public static char[] SpecialChars = "@#%^_/<>`~.&!+*-?^$()[]{}|\\".ToCharArray();
 
         Func<Regex, string, bool> IsValid = (reg, field) => reg.IsMatch(field);
 
